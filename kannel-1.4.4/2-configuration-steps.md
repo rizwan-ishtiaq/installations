@@ -8,3 +8,9 @@ Change the parameters values according to your system
 # Create / Copy smsc Files into /etc/kannel/smsc
 fake.conf<br/>
 smsc1.conf<br/>
+
+# kannel as service
+copy file kannel into /etc/init.d/<br/>
+serivce kannel start<br/>
+or<br/>
+systemctl start kannel<br/>
