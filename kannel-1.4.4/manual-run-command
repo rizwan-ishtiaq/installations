@@ -1,0 +1,15 @@
+/usr/local/sbin/start-stop-daemon --start --pidfile /var/run/kannel/kannel_bearerbox.pid --name bearerbox --exec /usr/local/sbin/bearerbox -- -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kannel.conf
+
+
+/usr/local/sbin/start-stop-daemon --start --pidfile /var/run/kannel/kannel_smsbox.pid --name smsbox --exec /usr/local/sbin/smsbox -- -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.conf
+
+
+/usr/local/sbin/start-stop-daemon --start --quiet --pidfile /var/run/kannel/kannel_sqlbox.pid --name sqlbox --exec /usr/local/sbin/sqlbox -- -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.conf
+
+/usr/local/sbin/fakesmsc -H localhost --port 10000 -F /var/log/kannel/fakesmsc.log -p /var/run/kannel/kannel_fakesmsc.pid -m 0 "100 300 text fakesmsc" 1>/dev/null 2>&1 &
+
+/usr/local/sbin/wapbox -v 0 --parachute --pid-file /var/run/kannel/kannel_wapbox.pid /etc/kannel/conf/kannel.conf
+
+/usr/local/sbin/smsbox -v 0 --parachute --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.conf
+
+/usr/local/sbin/sqlbox -v 0 --parachute --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.conf
