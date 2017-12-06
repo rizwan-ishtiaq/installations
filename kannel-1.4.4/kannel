@@ -1,0 +1,505 @@
+#!/bin/sh
+# Start/stop the Kannel boxes: One bearer box and one WAP box.
+# This is the default init.d script for Kannel.  Its configuration is
+# appropriate for a small site running Kannel on one machine.
+# chkconfig: 2345 80 20
+# description: Kannel server daemon
+
+# Make sure that the Kannel binaries can be found in $BOXPATH or somewhere
+# else along $PATH.  run_kannel_box has to be in $BOXPATH.
+
+BOXPATH=/usr/local/sbin
+PIDFILES=/var/run/kannel
+CONFDIR=/etc/kannel/conf
+BEARER_CONF=kannel.conf
+WAP_CONF=kannel.conf
+SMS_CONF=kannel.conf
+SQL_CONF=sqlbox.conf
+SMPP_CONF=opensmppbox.conf
+LOGPATH=/var/log/kannel
+
+ORACLE_HOME=/usr/lib/oracle/11.2/client64
+export ORACLE_HOME
+
+LD_LIBRARY_PATH=$ORACLE_HOME/lib
+export LD_LIBRARY_PATH
+
+TNS_ADMIN=$ORACLE_HOME/network/admin
+export TNS_ADMIN
+
+
+#PATH=$PATH:$ORACLE_HOME/bin:$BOXPATH
+#export PATH
+
+# On Debian, the most likely reason for the bearerbox not being available
+# is that the package is in the "removed" or "unconfigured" state, and the
+# init.d script is still around because it's a conffile.  This is normal,
+# so don't generate any output.
+test -x $BOXPATH/bearerbox || exit 0
+test -r /etc/default/kannel && . /etc/default/kannel
+
+. /etc/init.d/functions
+
+echo_status() {
+	if [ $2 == 0 ]; then
+		SETCOLOR=$SETCOLOR_SUCCESS
+	elif [ $2 == 1 ]; then
+		SETCOLOR=$SETCOLOR_FAILURE
+	elif [ $2 == 2 ]; then
+		SETCOLOR=$SETCOLOR_WARNING
+	else
+		SETCOLOR=$SETCOLOR_NORMAL
+	fi
+	
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "["
+  [ "$BOOTUP" = "color" ] && $SETCOLOR
+  echo -n $1
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo -n "]"
+  echo -ne "\r"
+  return 1
+}
+
+running () {
+	echo_status RUNNING 0;
+}
+
+stopped () {
+	echo_status STOPPED 2;
+}
+
+bearerbox_start() {
+	if [ -f $PIDFILES/kannel_bearerbox.pid ];
+	then
+		echo -n "Starting Kannel bearerbox [`cat $PIDFILES/kannel_bearerbox.pid`]" && running
+	else
+		echo -n "Starting Kannel bearerbox"
+  		$BOXPATH/start-stop-daemon --start --pidfile $PIDFILES/kannel_bearerbox.pid --name bearerbox \
+  		--exec $BOXPATH/bearerbox -- -v 4 --parachute --daemonize --pid-file $PIDFILES/kannel_bearerbox.pid $CONFDIR/$BEARER_CONF
+    	sleep 1 # Wait for bearerbox
+  	
+  		if [ -f $PIDFILES/kannel_bearerbox.pid ]; then
+				echo -n " [`cat $PIDFILES/kannel_bearerbox.pid`]" && success
+  		else
+				failure
+  		fi
+	fi
+  	# echo " {`cat $PIDFILES/kannel_bearerbox.pid`}"
+	echo ""
+}
+
+bearerbox_stop(){
+	echo -n "Stopping Kannel bearerbox"
+	$BOXPATH/start-stop-daemon --stop --quiet \
+  	--pidfile $PIDFILES/kannel_bearerbox.pid \
+		--name bearerbox 
+	sleep 0.2
+	while [ -e $PIDFILES/kannel_bearerbox.pid ]; do sleep 0.2; echo -n "."; done
+	echo -n "" && success || failure $"$prog start"
+	echo ""
+}
+
+wapbox_start() {
+	test ! -z $START_WAPBOX && (
+  	echo -n "Starting Kannel wapbox"
+		$BOXPATH/start-stop-daemon --start --quiet \
+    	--pidfile $PIDFILES/kannel_wapbox.pid --name wapbox \
+	    --exec $BOXPATH/wapbox -- -v 4 --parachute --daemonize \
+			--pid-file $PIDFILES/kannel_wapbox.pid $CONFDIR/$WAP_CONF
+    echo "[up]"
+	)
+}
+
+wapbox_stop() {
+	test ! -z $START_WAPBOX && (
+		echo -n "Stopping Kannel wapbox"
+		$BOXPATH/start-stop-daemon --stop --quiet \
+    	--pidfile $PIDFILES/kannel_wapbox.pid \
+	    --name wapbox
+		while [ -e $PIDFILES/kannel_wapbox.pid ]; do sleep 0.1; done
+    echo "[down]"
+	)
+}
+
+smsbox_start(){
+	if [ -f $PIDFILES/kannel_smsbox.pid ];
+	then
+		echo -n "Starting Kannel smsbox [`cat $PIDFILES/kannel_smsbox.pid`]"  && running
+	else
+		test ! -z $START_SMSBOX && (
+	    	echo -n "Starting Kannel smsbox"
+		$BOXPATH/start-stop-daemon --start --quiet \
+		--pidfile $PIDFILES/kannel_smsbox.pid --name smsbox \
+		--exec $BOXPATH/smsbox -- -v 4 --parachute --daemonize \
+		--pid-file $PIDFILES/kannel_smsbox.pid $CONFDIR/$SMS_CONF
+		
+		if [ -f $PIDFILES/kannel_smsbox.pid ]; then
+			echo -n " [`cat $PIDFILES/kannel_smsbox.pid`]" && success
+		else
+			failure $"$prog start"
+	  fi
+		)
+	fi
+	echo ""
+}
+
+smsbox_stop() {
+	test ! -z $START_SMSBOX && (
+		echo -n "Stopping Kannel smsbox"
+		$BOXPATH/start-stop-daemon --stop --quiet \
+    		--pidfile $PIDFILES/kannel_smsbox.pid \
+	    	--name smsbox
+	  	sleep 0.2
+		while [ -e $PIDFILES/kannel_smsbox.pid ]; do sleep 0.2; echo -n "."; done
+    		success
+		echo ""
+	)
+}
+
+sqlbox_start() {
+	if [ -f $PIDFILES/kannel_sqlbox.pid ];
+	then
+		echo -n "Starting Kannel sqlbox [`cat $PIDFILES/kannel_sqlbox.pid`]" && running
+	else
+		test ! -z $START_SQLBOX && (
+	    	echo -n "Starting Kannel sqlbox"
+	        $BOXPATH/start-stop-daemon --start --quiet \
+	            --pidfile $PIDFILES/kannel_sqlbox.pid --name sqlbox \
+	            --exec $BOXPATH/sqlbox -- -v 4 --parachute --daemonize \
+	            --pid-file $PIDFILES/kannel_sqlbox.pid $CONFDIR/$SQL_CONF \
+	            && echo -n " [`cat $PIDFILES/kannel_sqlbox.pid`]" && success
+	    )
+	fi
+	echo ""
+}
+
+sqlbox_stop() {
+	test ! -z $START_SQLBOX && (
+  	echo -n "Stopping Kannel sqlbox"
+		$BOXPATH/start-stop-daemon --stop \
+    		--quiet \
+		--pidfile $PIDFILES/kannel_sqlbox.pid \
+		--name sqlbox
+		sleep 0.2
+		while [ -e $PIDFILES/kannel_sqlbox.pid ]; do sleep 0.2; echo -n "."; done
+    	success
+		echo ""
+	)
+}
+
+smppbox_start() {
+	if [ -f $PIDFILES/kannel_opensmppbox.pid ];
+	then
+		echo -n "Starting Kannel opensmppbox [`cat $PIDFILES/kannel_opensmppbox.pid`]"  && running
+	else
+		test ! -z $START_OPENSMPPBOX && (
+			echo -n "Starting Kannel opensmppbox"
+			$BOXPATH/start-stop-daemon --start --quiet \
+			--pidfile $PIDFILES/kannel_opensmppbox.pid --name opensmppbox \
+			--exec $BOXPATH/opensmppbox -- -v 4 --parachute --daemonize \
+			--pid-file $PIDFILES/kannel_opensmppbox.pid $CONFDIR/$SMPP_CONF
+			#echo "pid: {`cat $PIDFILES/kannel_opensmppbox.pid`}"
+			#sleep 1
+			if [ -f $PIDFILES/kannel_opensmppbox.pid ]; then
+				echo -n " [`cat $PIDFILES/kannel_opensmppbox.pid`]" && success
+			else
+				failure
+			fi
+			)
+	fi
+	echo ""
+}
+
+smppbox_stop() {
+	test ! -z $START_OPENSMPPBOX && (
+		echo  -n "Stopping Kannel opensmppbox";
+		$BOXPATH/start-stop-daemon --stop --quiet \
+			--pidfile $PIDFILES/kannel_opensmppbox.pid --name opensmppbox
+		sleep 0.2
+		while [ -e $PIDFILES/kannel_opensmppbox.pid ]; do sleep 0.2; echo -n "."; done 
+		success
+		echo ""
+    )
+}
+
+smppbox2_start() {
+	test ! -z $START_OPENSMPPBOX && (
+    echo -n "Starting Kannel opensmppbox2    "
+		$BOXPATH/start-stop-daemon --start --quiet \
+			--pidfile $PIDFILES/kannel_opensmppbox2.pid --name opensmppbox2 \
+			--exec $BOXPATH/opensmppbox -- -v 4 --parachute --daemonize \
+			--pid-file $PIDFILES/kannel_opensmppbox2.pid $CONFDIR/smppclient2.conf
+    success
+    )
+}
+
+smppbox2_stop() {
+	test ! -z $START_OPENSMPPBOX && (
+	echo  -n "Stopping Kannel opensmppbox2"
+	$BOXPATH/start-stop-daemon --stop --quiet \
+		--pidfile $PIDFILES/kannel_opensmppbox2.pid \
+		--name opensmppbox2
+
+		sleep 0.2
+    while [ -e $PIDFILES/kannel_opensmppbox2.pid ]; do sleep 0.2; echo -n "."; done 
+    success
+    )
+}
+
+fakesmsc_start() {
+	test ! -z $START_FAKESMSC && (
+		echo -n "Strating Kannel fakesmsc"
+    if [ -e $PIDFILES/kannel_fakesmsc.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_fakesmsc.pid`" ];
+    then
+    		#echo -ne $PIDFILES/kannel_fakesmsc.pid
+    		#kill -9 `cat $PIDFILES/kannel_fakesmsc.pid` 1>/dev/null 2>&1
+    		#rm -f $PIDFILES/kannel_fakesmsc.pid
+    		echo -n " [`cat $PIDFILES/kannel_fakesmsc.pid`]" && running;
+    else
+    	#$BOXPATH/start-stop-daemon --start --quiet \
+    	#        --pidfile $PIDFILES/kannel_fakesmsc.pid \
+    	#        --exec /usr/local/kannel/fakesmsc -opt /dev/null \
+			#  --name fakesmsc
+			#/usr/local/kannel/fakesmsc -V -d -F $LOGPATH/fakesmsc.log -p $PIDFILES/kannel_fakesmsc.pid 1>/dev/null 2>&1 &
+			#/usr/local/kannel/fakesmsc -V -d -F /var/log/kannel/fakesmsc.log & #1>/dev/null 2>&1 &
+			#$BOXPATH/fakesmsc -v 1 \
+			#	-m 0 "100 300 text Welcome fakesmsc" \
+			#	-d -H localhost \
+			#	--port 12000
+			#	-F $LOGPATH/fakesmsc.log \
+			#	-p $PIDFILES/kannel_fakesmsc.pid \
+			#		1>/dev/null 2>&1 &
+			
+			if [ -e $PIDFILES/kannel_fakesmsc.pid ]; then rm -f $PIDFILES/kannel_fakesmsc.pid; fi
+			
+    	$BOXPATH/fakesmsc -H localhost --port 10000 \
+	  	-F $LOGPATH/fakesmsc.log -p $PIDFILES/kannel_fakesmsc.pid -m 0 "100 300 text fakesmsc" 1>/dev/null 2>&1 & 
+			[ $? -eq 0 ] && success || failure
+    fi
+		echo ""
+    )
+}
+
+fakesmsc_stop() {
+    test ! -z $START_FAKESMSC && (
+    	echo -n "Stopping Kannel fakesmsc"
+      	#$BOXPATH/start-stop-daemon --stop \
+      	#      --quiet \
+      	#      --pidfile $PIDFILES/kannel_fakesmsc.pid \
+      	#      --name fakesmsc
+      	#kill `cat /var/run/kannel/kannel_fakesmsc.pid`
+      	#rm -f /var/run/kannel/kannel_fakesmsc.pid
+      	pkill -9 fakesmsc
+    	success
+	echo ""
+    )
+}
+
+status() {
+	echo -n "Status Kannel bearerbox"
+	if [ -e $PIDFILES/kannel_bearerbox.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_bearerbox.pid`" ]; then 
+	echo -n " [`cat $PIDFILES/kannel_bearerbox.pid`]" && running; else stopped; fi
+	echo ""
+	
+	test ! -z $START_WAPBOX && (
+  	echo -n "Status Kannel wapbox"
+  	if [ -f $PIDFILES/kannel_wapbox.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_wapbox.pid`" ]; then 
+  	echo -n " [`cat $PIDFILES/kannel_wapbox.pid`]" && running; else stopped; fi
+    echo ""
+	)
+	
+	test ! -z $START_SMSBOX && (
+		echo -n "Status Kannel smsbox"
+		if [ -f $PIDFILES/kannel_smsbox.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_smsbox.pid`" ]; then 
+		echo -n " [`cat $PIDFILES/kannel_smsbox.pid`]" && running; else stopped; fi
+		echo ""
+	)
+	
+	test ! -z $START_SQLBOX && (
+		echo -n "Status Kannel sqlbox "
+		if [ -f $PIDFILES/kannel_sqlbox.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_sqlbox.pid`" ]; then 
+		echo -n " [`cat $PIDFILES/kannel_sqlbox.pid`]" && running; else stopped; fi
+		echo ""
+	)
+	
+	test ! -z $START_OPENSMPPBOX && ( 
+		echo -n "Status Kannel opensmppbox"
+		if [ -f $PIDFILES/kannel_opensmppbox.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_opensmppbox.pid`" ]; then 
+		echo -n " [`cat $PIDFILES/kannel_opensmppbox.pid`]" && running; else stopped; fi
+		echo ""
+	)
+	
+	test ! -z $START_FAKESMSC && (
+		echo -n "Status Kannel fakesmsc"
+		if [ -f $PIDFILES/kannel_fakesmsc.pid ] && [ -d "/proc/`cat $PIDFILES/kannel_fakesmsc.pid`" ]; then 
+		echo -n " [`cat $PIDFILES/kannel_fakesmsc.pid`]" && running; else stopped; fi
+		echo ""
+	)
+}
+
+case "$1" in
+  
+  start)
+  	#echo "Kannel gateway:"
+    bearerbox_start;
+    wapbox_start;
+    smsbox_start;
+    sqlbox_start;
+    smppbox_start;
+    #smppbox2_start;
+    fakesmsc_start;
+    ;;
+  stop)
+  	#echo "Kannel gateway:"
+    fakesmsc_stop;
+    smppbox_stop;
+    #smppbox2_stop;
+    sqlbox_stop;
+    smsbox_stop;
+    wapbox_stop;
+    bearerbox_stop;
+    ;;
+  info)
+    CORE_CONF=$(grep -r 'group[[:space:]]*=[[:space:]]*core' $CONFDIR/$BEARER_CONF | cut -d: -f1)
+    ADMIN_PORT=$(grep '^admin-port' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//")
+    ADMIN_PASS=$(grep '^admin-password' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//")
+    STATUS_URL="http://127.0.0.1:${ADMIN_PORT}/status.txt?password=${ADMIN_PASS}"
+    #echo $STATUS_URL
+    #echo ""
+    lynx -source $STATUS_URL
+   ;;
+  status)
+    status;
+  ;;
+  restart|force-reload|reload)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+  monitor|mon)
+  	echo -en "\033[2J";
+  	ADMIN_PORT=$(grep '^admin-port' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//")
+	  ADMIN_PASS=$(grep '^admin-password' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//")
+	  STATUS_URL="http://127.0.0.1:${ADMIN_PORT}/status.txt?password=${ADMIN_PASS}"
+	  #echo $STATUS_URL
+  	while :	; do 
+  		echo -en "\033[2J\033[0;0H";
+	  	lynx -source $STATUS_URL;
+	  	sleep 2;
+  	done
+  	;;
+  speed)
+        #echo -en "\033[2J";
+	ADMIN_PORT=$(grep '^admin-port' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//")
+        ADMIN_PASS=$(grep '^admin-password' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//")
+        STATUS_URL="http://127.0.0.1:${ADMIN_PORT}/status.txt?password=${ADMIN_PASS}"
+        #echo $STATUS_URL
+	while : ; do
+                echo "`date` - "
+                lynx -source $STATUS_URL|grep "SMS: "
+		#lynx -source $STATUS_URL|grep "SMS: inbound"|sed 's\SMS: inbound (0.00,0.00,0.00) msg/sec, outbound \\'
+                sleep 2;
+        done
+  ;;
+  bearerbox)
+		case "$2" in
+  		log)
+	   		tail -f `grep '^log-file' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//"|grep bearerbox`
+  		;;
+  		alog)
+	   		tail -f `grep '^access-log' $CONFDIR/$BEARER_CONF | sed "s/.*=[[:space:]]*//"`
+  		;;
+			start)
+	   		bearerbox_start
+			;;
+			stop)
+	   		bearerbox_stop
+			;;
+  		*)
+  			exit 1
+		esac
+  ;;
+  sqlbox)
+		case "$2" in
+  		log)
+	   		tail -f `grep '^log-file' $CONFDIR/$SQL_CONF | sed "s/.*=[[:space:]]*//"`
+  		;;
+			start)
+	   		sqlbox_start
+			;;
+			stop)
+	   		sqlbox_stop
+			;;
+  		*)
+  			exit 1
+		esac
+  ;;
+  smsbox)
+		case "$2" in
+  		log)
+	   		tail -f `grep '^log-file' $CONFDIR/$SMS_CONF | sed "s/.*=[[:space:]]*//"|grep smsbox`
+  		;;
+			start)
+	   		smsbox_start
+			;;
+			stop)
+	   		smsbox_stop
+			;;
+  		*)
+  			exit 1
+		esac
+  ;;
+	smppbox)
+		case "$2" in
+  		log)
+	   		tail -f `grep '^log-file' $CONFDIR/$SMPP_CONF | sed "s/.*=[[:space:]]*//"`
+  		;;
+  		log2)
+	   		tail -f `grep '^log-file' $CONFDIR/$SMPP_CONF | sed "s/.*=[[:space:]]*//"`
+  		;;
+			start)
+	   		smppbox_start
+			;;
+			stop)
+	   		smppbox_stop
+			;;
+  		*)
+  			exit 1
+		esac
+	;;
+	smppbox2)
+		case "$2" in
+  		log)
+	   		tail -f `grep '^log-file' $CONFDIR/opensmppbox2.conf | sed "s/.*=[[:space:]]*//"`
+  		;;
+			start)
+	   		smppbox2_start
+			;;
+			stop)
+	   		smppbox2_stop
+			;;
+  		*)
+  			exit 1
+		esac
+	;;
+	fakesmsc)
+		case "$2" in
+  		log)
+	   		tail -f $LOGPATH/fakesmsc.log
+  		;;
+			start)
+	   		fakesmsc_start
+			;;
+			stop)
+	   		fakesmsc_stop
+			;;
+  		*)
+  			exit 1
+		esac
+  ;;
+  *)
+	echo "Usage: $0 {start|stop|status|reload|restart|force-reload}"
+  exit 1
+esac
+exit 0
