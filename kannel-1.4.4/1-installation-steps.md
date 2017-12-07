@@ -28,3 +28,8 @@ cd /usr/local/src/gateway-1.4.4<br/>
 ./configure  --prefix=/etc/kannel --with-mysql --with-mysql-dir=/usr/include/mysql --enable-start-stop-daemon<br/>
 make<br/>
 make install<br/>
+
+# Install fake smsc
+The fake SMS center should compile at the same time as main Kannel compiles. But it's binnary will not copy as a part of install so we have to do it manually<br/>
+cd /usr/local/src/gateway-1.4.4/test<br/>
+cp fakesmsc /usr/local/sbin/<br/>
