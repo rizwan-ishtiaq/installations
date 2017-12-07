@@ -24,6 +24,6 @@ NOTE: I also installed on ubuntu by following steps from 1-installation-step.md 
   <li>su -</li>
   <li>apt-get update</li>
   <li>My envoirnment was missing following tools</li>
-  <li>apt-get install build-essential m4 libxml2 libxml2-dev</li>
+  <li>apt-get install build-essential m4 libxml2 libxml2-dev libmysqlclient-dev</li>
   <li>After completing 1-installation-step.md document need to run cp /etc/kannel/sbin/* /usr/local/sbin/</li>
 </ul>
