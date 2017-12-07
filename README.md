@@ -2,13 +2,11 @@
 installation of different softwares
 
 # kannel 1.4.4
-This kannel have following
+This kannel is installed as a root user on centos 7 as a service and have following. With SQL BOX (means can use database to send sms, receive dlr and queue dlrs). Some on features are following
 <ul>
-  <li>Centos 7</li>
-  <li>kannel as a service</li>
-  <li>With SQL BOX (means can use database to send sms, receive dlr and queue dlrs)</li>
+  <li>CentOS Linux release 7.4.1708 (Core)  [x86_64], kernel: 3.10.0-693.5.2.el7.x86_64</li>
+  <li>with mysql Ver 14.14 Distrib 5.7.20, for linux-glibc2.12 (x86_64) using  EditLine wrapper</li>
   <li>Send messages from mysql table to smsc</li>
-  <li>Mysql Ver 14.14 Distrib 5.7.20, for linux-glibc2.12 (x86_64) using  EditLine wrapper</li>
   <li>Fake SMSC</li>
   <li>After Installation with default, will start following default components</li>
   <ul>
@@ -18,5 +16,5 @@ This kannel have following
     <li>spool dlrs</li>
     <li>fakesmsc</li>
   </ul>
-  <li></li>
 </ul>
+Flow will be: read messages from send_sms table and send it to attached smsc. When Dlr received by smsc update sent_sms table. kannel will use /var/spool as a storage for processing.<br/>
