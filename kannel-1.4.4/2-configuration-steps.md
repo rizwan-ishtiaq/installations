@@ -1,6 +1,6 @@
 # Create Dir
 mkdir -p /etc/kannel/conf<br/>
-mkdir -p /etc/kannel/smsc<br/>
+mkdir -p /etc/kannel/smscs<br/>
 mkdir -p /var/log/kannel<br/>
 mkdir -p /var/spool/kannel/store<br/>
 mkdir -p /var/spool/kannel/dlr<br/>
