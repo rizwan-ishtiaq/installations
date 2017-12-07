@@ -18,23 +18,23 @@ cd bison-2.7<br/>
 ./configure --prefix=/usr/local/bison27<br/>
 make<br/>
 make install<br/>
-#There can be some warring messages, you can igonore them
 
 # Use Bison 2.7
-export PATH=/usr/local/bison27:$PATH<br/>
+export PATH=/usr/local/bison27/bin:$PATH<br/>
 
 # Compile & Install Kannel with MySQL support
 cd /usr/local/src/gateway-1.4.4<br/>
 ./configure  --prefix=/etc/kannel --with-mysql --with-mysql-dir=/usr/include/mysql --enable-start-stop-daemon<br/>
+#There can be some warring messages while make, you can igonore them
 make<br/>
 make install<br/>
-#There can be some warring messages, you can igonore them
 
 # Comiple & Install SQLBOX
 cd /usr/local/src/gateway-1.4.4/addons<br/>
 cd sqlbox<br/>
 ./bootstrap<br/>
 ./configure --with-kannel-dir=/etc/kannel<br/>
+#note it will be looking file /usr/include/mysql/mysql.h<br/>
 make<br/>
 make install<br/>
 A good complete reference document can be found at following<br/>
