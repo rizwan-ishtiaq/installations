@@ -18,3 +18,11 @@ Goto kannel-1.4.4 directory. This kannel is installed as a root user on centos 7
   </ul>
 </ul>
 Flow will be: read messages from send_sms table and send it to attached smsc. When Dlr received by smsc update sent_sms table. kannel will use /var/spool as a storage for processing.<br/>
+NOTE: I also installed on ubuntu by following steps from 1-installation-step.md -> Download Source<br/>
+<ul>
+  <li>Ubuntu 14.04.5 LTS (GNU/Linux 4.4.0-31-generic x86_64)</li>
+  <li>su -</li>
+  <li>apt-get update</li>
+  <li>My envoirnment was missing following tools</li>
+  <li>apt-get install build-essential m4 libxml2 libxml2-dev</li>
+</ul>
