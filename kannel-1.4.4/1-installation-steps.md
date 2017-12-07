@@ -11,7 +11,7 @@ tar -zxvf gateway-1.4.4.tar.gz<br/>
 # Bison version (kannel will NOT compile if version is > 3.0)
 bison --version<br/>
 #bison 2.7 will be good choice<br/>
-cd /user/local/src<br/>
+cd /usr/local/src<br/>
 wget http://ftp.gnu.org/gnu/bison/bison-2.7.tar.gz<br/>
 tar -zxvf bison-2.7.tar.gz<br/>
 cd bison-2.7<br/>
@@ -28,12 +28,13 @@ cd /usr/local/src/gateway-1.4.4<br/>
 ./configure  --prefix=/etc/kannel --with-mysql --with-mysql-dir=/usr/include/mysql --enable-start-stop-daemon<br/>
 make<br/>
 make install<br/>
+#There can be some warring messages, you can igonore them
 
 # Comiple & Install SQLBOX
 cd /usr/local/src/gateway-1.4.4/addons<br/>
 cd sqlbox<br/>
 ./bootstrap<br/>
-./configure<br/>
+./configure --with-kannel-dir=/etc/kannel<br/>
 make<br/>
 make install<br/>
 A good complete reference document can be found at following<br/>
