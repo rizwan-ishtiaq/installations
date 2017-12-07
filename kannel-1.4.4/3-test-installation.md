@@ -4,11 +4,11 @@ Installation and configuration is completed now. It is time to test
 # Port scan
 netstat -tunap | grep box<br/>
 Output should be like following<br/>
-tcp        0      0 0.0.0.0:13005           0.0.0.0:*               LISTEN      4616/sqlbox    <br/>     
-tcp        0      0 0.0.0.0:10000           0.0.0.0:*               LISTEN      4588/bearerbox      <br/>
-tcp        0      0 0.0.0.0:13013           0.0.0.0:*               LISTEN      4601/smsbox         <br/>
-tcp        0      0 0.0.0.0:13000           0.0.0.0:*               LISTEN      4588/bearerbox      <br/>
-tcp        0      0 0.0.0.0:13001           0.0.0.0:*               LISTEN      4588/bearerbox      <br/>
+tcp        0      0 0.0.0.0:13005           0.0.0.0:*               LISTEN      4616/sqlbox <br/>     
+tcp        0      0 0.0.0.0:10000           0.0.0.0:*               LISTEN      4588/bearerbox <br/>
+tcp        0      0 0.0.0.0:13013           0.0.0.0:*               LISTEN      4601/smsbox <br/>
+tcp        0      0 0.0.0.0:13000           0.0.0.0:*               LISTEN      4588/bearerbox <br/>
+tcp        0      0 0.0.0.0:13001           0.0.0.0:*               LISTEN      4588/bearerbox  <br/>
 tcp        0      0 127.0.0.1:54018         127.0.0.1:13001         ESTABLISHED 4616/sqlbox         <br/>
 tcp        0      0 127.0.0.1:10000         127.0.0.1:47918         ESTABLISHED 4588/bearerbox      <br/>
 tcp        0      0 127.0.0.1:13001         127.0.0.1:54016         ESTABLISHED 4588/bearerbox      <br/>
