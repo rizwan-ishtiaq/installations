@@ -29,6 +29,16 @@ cd /usr/local/src/gateway-1.4.4<br/>
 make<br/>
 make install<br/>
 
+# Comiple & Install SQLBOX
+cd /usr/local/src/gateway-1.4.4/addons<br/>
+cd sqlbox<br/>
+./bootstrap<br/>
+./configure<br/>
+make<br/>
+make install<br/>
+A good complete reference document can be found at following<br/>
+https://sourceforge.net/p/kannelappliance/wiki/Configuration/attachment/sqlbox-userguide.pdf
+
 # Install fake smsc
 The fake SMS center should compile at the same time as main Kannel compiles. But it's binnary will not copy as a part of install so we have to do it manually<br/>
 cd /usr/local/src/gateway-1.4.4/test<br/>
