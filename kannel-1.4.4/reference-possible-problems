@@ -1,0 +1,8 @@
+# DLR issues
+(1) You sent a message through a different connection with different SMSC ID, the callback DLR won't get a match e.g. The transmit connection uses a different SMSC ID than the receiver connection, because kannel matches the SMSC ID, too !!
+
+(2) You sent a message without asking for DLR e.g. dlr_mask = 0, kannel then won't store a reference for the sent message. But the carrier sent you a DLR !! this case may happen because some carriers send you a DLR even if you don't ask for it.
+
+(3) When you send a concatenated MT, kannel keeps a reference for the first part only and ignores the other parts, but some operators send you the DLRs for all the parts, the other parts won't find a match.
+
+(4) This case is the most critical, some carriers send you the DLR before sending the ACK ! the DLR won't get a match because kannel didn't save the message reference yet ! it waits for the submit_sm_resp (ACK,NACK,...) before storing the reference in the store, Alex had a fix for this but it has performance penalties."
