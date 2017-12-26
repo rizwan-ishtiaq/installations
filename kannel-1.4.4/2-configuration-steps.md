@@ -35,6 +35,6 @@ fake.conf<br/>
 # kannel as service
 copy file kannel into /etc/init.d/<br/>
 chmod a+x /etc/init.d/kannel<br/>
-serivce kannel start<br/>
+service kannel start<br/>
 or<br/>
 systemctl start kannel<br/>
