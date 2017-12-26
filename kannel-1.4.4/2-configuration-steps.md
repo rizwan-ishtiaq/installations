@@ -29,7 +29,7 @@ Description: The way it is meant to work is that each /etc/init.d/test script fi
   <li>press esc and save file using :x or :wq</li>
 </ol>
 
-# Create / Copy smsc Files into /etc/kannel/smsc
+# Create / Copy smsc Files into /etc/kannel/smscs
 fake.conf<br/>
 
 # kannel as service
