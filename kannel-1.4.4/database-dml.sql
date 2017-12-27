@@ -1,5 +1,5 @@
-create database kannel default character set utf8 default collate utf8_general_ci;
 create user 'kannel'@'localhost' identified by 'kannel';
+create database kannel default character set utf8 default collate utf8_general_ci;
 grant all on kannel.* to 'kannel'@'localhost';
 flush privileges;
 use kannel;
