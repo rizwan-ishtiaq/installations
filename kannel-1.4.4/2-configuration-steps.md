@@ -9,16 +9,11 @@ mkdir -p /var/spool/kannel/dlr
 ```
 ## Create / Copy Configuration Files into /etc/kannel/conf
 > You can do it manually by using below files (links) or use wget
-
-*[kannel.conf](kannel.conf)*
-
-*[sqlbox.conf](sqlbox.conf)*
-
-*[opensmppbox.conf](opensmppbox.conf)*
-
-*[dlr-mysql.conf](dlr-mysql.conf)*
-
-*[smpplogins.txt](smpplogins.txt)*
+* *[kannel.conf](kannel.conf)*
+* *[sqlbox.conf](sqlbox.conf)*
+* *[opensmppbox.conf](opensmppbox.conf)*
+* *[dlr-mysql.conf](dlr-mysql.conf)*
+* *[smpplogins.txt](smpplogins.txt)*
 
 **OR**
 ```
