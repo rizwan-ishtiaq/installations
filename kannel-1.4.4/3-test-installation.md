@@ -43,6 +43,15 @@ tcp        0      0 127.0.0.1:55240         127.0.0.1:13001         ESTABLISHED 
 tcp        0      0 127.0.0.1:13001         127.0.0.1:55240         ESTABLISHED 12031/bearerbox
 ```
 
+## Process id files
+`ls -l /var/run/kannel/`
+```
+-rw-r--r--. 1 root root 6 Dec 28 10:26 kannel_bearerbox.pid
+-rw-r--r--. 1 root root 6 Dec 28 10:26 kannel_fakesmsc.pid
+-rw-r--r--. 1 root root 6 Dec 28 10:26 kannel_smsbox.pid
+-rw-r--r--. 1 root root 6 Dec 28 10:26 kannel_sqlbox.pid
+```
+
 ## Process scan
 `ps aux | grep kannel`
 ```
