@@ -19,4 +19,4 @@ Installation directory *[kannel-1.4.4](kannel-1.4.4)*. *[Kannel](http://www.kann
 </ul>
 Working will be: read messages from send_sms table and send it to attached smsc. When Dlr received by smsc update sent_sms table. kannel will use /var/spool as a storage for processing.
 
-NOTE: I also installed it on **Ubuntu 14.04.5 LTS (GNU/Linux 4.4.0-31-generic x86_64)**. See *[read me](kannel-1.4.4/0-readme.md)* file for more details.
+NOTE: I also installed it on **Ubuntu 17.04 (GNU/Linux 4.10.0-19-generic x86_64)** server. See *[read me](kannel-1.4.4/0-readme.md)* file for more details.
