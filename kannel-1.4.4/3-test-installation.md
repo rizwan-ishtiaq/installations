@@ -1,33 +1,58 @@
 # Congratulation
 Installation and configuration is completed now. It is time to test
 
+## Service check
+`service kannel status`
+```
+Status Kannel bearerbox [12029]                            [RUNNING]
+Status Kannel smsbox [12042]                               [RUNNING]
+Status Kannel sqlbox  [12056]                              [RUNNING]
+Status Kannel fakesmsc [12065]                             [RUNNING]
+```
+`systemctl status kannel`
+```
+● kannel.service - SYSV: Kannel server daemon
+   Loaded: loaded (/etc/rc.d/init.d/kannel; bad; vendor preset: disabled)
+   Active: active (running) since Thu 2017-12-28 10:26:21 +03; 44s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 12007 ExecStop=/etc/rc.d/init.d/kannel stop (code=exited, status=0/SUCCESS)
+  Process: 12023 ExecStart=/etc/rc.d/init.d/kannel start (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/kannel.service
+           ├─12029 /usr/local/sbin/bearerbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kan...
+           ├─12031 /usr/local/sbin/bearerbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kan...
+           ├─12042 /usr/local/sbin/smsbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.co...
+           ├─12045 /usr/local/sbin/smsbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.co...
+           ├─12056 /usr/local/sbin/sqlbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.co...
+           ├─12059 /usr/local/sbin/sqlbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.co...
+           └─12065 /usr/local/sbin/fakesmsc -H localhost --port 10000 -F /var/log/kannel/fakesmsc.log -p /var/run/kannel/kannel_fakesmsc.pid -...
+```
 ## Port scan
 `netstat -tunap | grep box`
 
 Output should be like following
 ```
-tcp        0      0 0.0.0.0:13005           0.0.0.0:*               LISTEN      4616/sqlbox     
-tcp        0      0 0.0.0.0:10000           0.0.0.0:*               LISTEN      4588/bearerbox
-tcp        0      0 0.0.0.0:13013           0.0.0.0:*               LISTEN      4601/smsbox
-tcp        0      0 0.0.0.0:13000           0.0.0.0:*               LISTEN      4588/bearerbox
-tcp        0      0 0.0.0.0:13001           0.0.0.0:*               LISTEN      4588/bearerbox
-tcp        0      0 127.0.0.1:54018         127.0.0.1:13001         ESTABLISHED 4616/sqlbox
-tcp        0      0 127.0.0.1:10000         127.0.0.1:47918         ESTABLISHED 4588/bearerbox
-tcp        0      0 127.0.0.1:13001         127.0.0.1:54016         ESTABLISHED 4588/bearerbox
-tcp        0      0 127.0.0.1:13001         127.0.0.1:54018         ESTABLISHED 4588/bearerbox
-tcp        0      0 127.0.0.1:54016         127.0.0.1:13001         ESTABLISHED 4601/smsbox
+tcp        0      0 0.0.0.0:13005           0.0.0.0:*               LISTEN      12059/sqlbox        
+tcp        0      0 0.0.0.0:10000           0.0.0.0:*               LISTEN      12031/bearerbox     
+tcp        0      0 0.0.0.0:13013           0.0.0.0:*               LISTEN      12045/smsbox        
+tcp        0      0 0.0.0.0:13000           0.0.0.0:*               LISTEN      12031/bearerbox     
+tcp        0      0 0.0.0.0:13001           0.0.0.0:*               LISTEN      12031/bearerbox     
+tcp        0      0 127.0.0.1:13001         127.0.0.1:55236         ESTABLISHED 12031/bearerbox     
+tcp        0      0 127.0.0.1:55236         127.0.0.1:13001         ESTABLISHED 12045/smsbox        
+tcp        0      0 127.0.0.1:10000         127.0.0.1:54640         ESTABLISHED 12031/bearerbox     
+tcp        0      0 127.0.0.1:55240         127.0.0.1:13001         ESTABLISHED 12059/sqlbox        
+tcp        0      0 127.0.0.1:13001         127.0.0.1:55240         ESTABLISHED 12031/bearerbox
 ```
 
 ## Process scan
 `ps aux | grep kannel`
 ```
-root      4586  0.0  0.0  66328  2360 ?        Ss   04:47   0:00 /usr/local/sbin/bearerbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kannel.conf
-root      4588  0.0  0.0 680972  5276 ?        Sl   04:47   0:00 /usr/local/sbin/bearerbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kannel.conf
-root      4599  0.0  0.0  65940  2364 ?        Ss   04:47   0:00 /usr/local/sbin/smsbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.conf
-root      4601  0.0  0.0 459328  2792 ?        Sl   04:47   0:00 /usr/local/sbin/smsbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.conf
-root      4614  0.0  0.0  65764  2364 ?        Ss   04:47   0:00 /usr/local/sbin/sqlbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.conf
-root      4616  0.0  0.0 213632  3416 ?        Sl   04:47   0:00 /usr/local/sbin/sqlbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.conf
-root      4621  0.0  0.0  65720  5004 ?        S    04:47   0:00 /usr/local/sbin/fakesmsc -H localhost --port 10000 -F /var/log/kannel/fakesmsc.log -p /var/run/kannel/kannel_fakesmsc.pid -m 0 100 300 text fakesmsc
+root     12029  0.0  0.0  40940   952 ?        Ss   10:26   0:00 /usr/local/sbin/bearerbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kannel.conf
+root     12031  0.0  0.1 589980  1416 ?        Sl   10:26   0:00 /usr/local/sbin/bearerbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_bearerbox.pid /etc/kannel/conf/kannel.conf
+root     12042  0.0  0.0  40548   968 ?        Ss   10:26   0:00 /usr/local/sbin/smsbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.conf
+root     12045  0.0  0.1 433936  1380 ?        Sl   10:26   0:00 /usr/local/sbin/smsbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_smsbox.pid /etc/kannel/conf/kannel.conf
+root     12056  0.0  0.0  40372   960 ?        Ss   10:26   0:00 /usr/local/sbin/sqlbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.conf
+root     12059  0.0  0.1 122720  1712 ?        Sl   10:26   0:00 /usr/local/sbin/sqlbox -v 4 --parachute --daemonize --pid-file /var/run/kannel/kannel_sqlbox.pid /etc/kannel/conf/sqlbox.conf
+root     12065  0.0  0.2  40332  2256 ?        S    10:26   0:00 /usr/local/sbin/fakesmsc -H localhost --port 10000 -F /var/log/kannel/fakesmsc.log -p /var/run/kannel/kannel_fakesmsc.pid -m 0 100 300 text fakesmsc
 ```
 
 ## Send sms test
