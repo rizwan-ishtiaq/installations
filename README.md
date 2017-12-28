@@ -1,8 +1,8 @@
 # Installations
-installation of different softwares
+Installation of different softwares
 
 ## kannel 1.4.4
-Goto kannel-1.4.4 directory. This kannel is installed as a root user on centos 7 as a service with SQL BOX (means can use database to send sms, receive dlr and queue dlrs). Some on important points are following
+Installation directory *[kannel-1.4.4](kannel-1.4.4)*. *[Kannel](http://www.kannel.org/)* is installed as a `root` user on centos 7 **as a service with SQL BOX** (means can use database to send sms, receive dlr and queue dlrs). Some of features are following
 <ul>
   <li>CentOS Linux release 7.4.1708 (Core)  [x86_64], kernel: 3.10.0-693.5.2.el7.x86_64</li>
   <li>with mysql Ver 14.14 Distrib 5.7.20, for linux-glibc2.12 (x86_64) using  EditLine wrapper</li>
