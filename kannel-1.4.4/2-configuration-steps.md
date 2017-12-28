@@ -46,7 +46,7 @@ cd /etc/kannel/smscs
 wget https://raw.githubusercontent.com/rizwan-ishtiaq/installations/master/kannel-1.4.4/fake.conf
 ```
 ## Creating (Database/table/user)
-> I am creating kannel user with password kannel. But you **should** change it. If you decide to change user name and password, you need to change it in two files *[dlr-mysql.conf](dlr-mysql.conf)* and *[database-dml.sql](database-dml.sql)*. Note mysql 5.7 by default have plugin *validate_password* which will not allow you to have simple password *kannel*. Run file will root user.
+> I am creating database `kannel` with user `kannel` and password `kaNneL%123`. But you **should** change it. If you decide to change user name and password, you need to change it in two files *[dlr-mysql.conf](dlr-mysql.conf)* and *[database-dml.sql](database-dml.sql)*. Note mysql 5.7 by default have plugin *validate_password* which will not allow you to have simple password. Run file will root user.
 ```
 cd /tmp
 wget https://raw.githubusercontent.com/rizwan-ishtiaq/installations/master/kannel-1.4.4/database-dml.sql
