@@ -7,6 +7,20 @@ mkdir -p /var/run/kannel
 mkdir -p /var/spool/kannel/store
 mkdir -p /var/spool/kannel/dlr
 ```
+## tmpfs /var/run
+In centos7 file system `/var/run` is **symbolic link** to `/run` which is `tmpfs`. To verify this use following
+```
+ls -al /var
+mount | grep /run
+```
+On reboot /var/run/kannel will be deleted. to fix this use following
+
+1. vi /usr/lib/tmpfiles.d/kannel.conf
+2. press i
+3. Copy paste following
+  * #Type Path        Mode UID  GID  Age Argument
+  * d /var/run/kannel 0755 root root
+4. press esc and save file using :x or :wq
 ## Create / Copy Configuration Files into /etc/kannel/conf
 > You can do it manually by using below files (links) or use wget
 * *[kannel.conf](kannel.conf)*
@@ -61,5 +75,13 @@ cd /etc/init.d/
 wget https://raw.githubusercontent.com/rizwan-ishtiaq/installations/master/kannel-1.4.4/kannel
 ```
 `chmod a+x /etc/init.d/kannel`
+## kannel as systemd service
+create/copy file *[kannel.service](kannel.service)* into /etc/systemd/system/ manually
+
+**OR**
+```
+cd /etc/systemd/system/
+wget https://raw.githubusercontent.com/rizwan-ishtiaq/installations/master/kannel-1.4.4/kannel.service
+```
 ### Starting kannel service
 `service kannel start` or `systemctl start kannel`
