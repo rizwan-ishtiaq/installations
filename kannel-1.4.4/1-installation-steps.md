@@ -1,8 +1,8 @@
 ## Compile tools
 ```
-yum update
+yum update -y
 yum groupinstall "Development tools" -y
-yum install libxml2-devel
+yum install libxml2-devel -y
 ```
 ## Bison version
 `bison --version`
