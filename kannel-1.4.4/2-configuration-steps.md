@@ -85,6 +85,7 @@ wget https://raw.githubusercontent.com/rizwan-ishtiaq/installations/master/kanne
 ```
 ### Auto start kannel on reboot (optional)
 With sql box, kannel should be start after mysql. If you already make mysql as service uncomment `#After=mysql.service` from *[kannel.service](kannel.service)* by removing `#` using `vi` or `nano` editor
+
 `systemctl enable kannel`
 ### Starting kannel service
 `service kannel start` or `systemctl start kannel`
