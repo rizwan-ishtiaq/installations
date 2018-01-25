@@ -24,7 +24,7 @@ make install
 ## Download kannel source
 ```
 cd /usr/local/src/
-wget http://www.kannel.org/download/1.4.4/gateway-1.4.4.tar.gz
+wget --no-check-certificate https://www.kannel.org/download/1.4.4/gateway-1.4.4.tar.gz
 tar -zxvf gateway-1.4.4.tar.gz
 ```
 
